@@ -1,10 +1,15 @@
 import numpy as np
 import torch
+from typing import Dict, List
 
 from nn_magnetics.utils.metrics import calculate_metrics, calculate_metrics_baseline
 
 
-def validate(X_test, B_test, model):
+def validate(
+    X_test: np.ndarray,
+    B_test: np.ndarray,
+    model: torch.nn.Module,
+) -> Dict[str, List[float]]:
     model.eval()
 
     avg_angle_errors_baseline = []
@@ -15,10 +20,10 @@ def validate(X_test, B_test, model):
     with torch.no_grad():
         for X, B in zip(torch.from_numpy(X_test), torch.from_numpy(B_test)):
             B_pred = model(X)
+            B = B.numpy()
+            B_pred = B_pred.numpy()
 
-            angle_errs_baseline, amp_errs_baseline = calculate_metrics_baseline(
-                B.numpy()
-            )
+            angle_errs_baseline, amp_errs_baseline = calculate_metrics_baseline(B)
             avg_angle_errors_baseline.append(np.mean(angle_errs_baseline, axis=0))
             avg_amp_errors_baseline.append(np.mean(amp_errs_baseline, axis=0))
 
