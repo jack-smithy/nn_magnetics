@@ -4,8 +4,9 @@ import datetime
 from dataclasses import dataclass
 from typing import Literal
 import wandb
+from wakepy import keep
 
-from nn_magnetics import (
+from nn_magnetics.pytorch import (
     train_isotropic,
     evaluate_isotropic,
     train_anisotropic,
@@ -21,7 +22,7 @@ class ModelConfig:
     architecture: Literal["MLP"]
     hidden_dim_factor: int
     activation: Literal["SiLU"]
-    loss_fn: Literal["field", "correction"]
+    loss_fn: Literal["field", "correction", "amplitude"]
     data_dir: str
     epochs: int
     batch_size: int
@@ -45,17 +46,17 @@ def run_experiment(config: ModelConfig) -> None:
 
 
 def main() -> None:
-    project_name = "anisotropic_chi_v2"
+    project_name = "trying-out-sweeps"
     timestamp = str(datetime.datetime.now())
     config = ModelConfig(
-        learning_rate=0.004,
+        learning_rate=0.001,
         architecture="MLP",
         hidden_dim_factor=6,
         activation="SiLU",
         loss_fn="field",
         data_dir="data/anisotropic_chi",
-        epochs=2,
-        batch_size=256,
+        epochs=30,
+        batch_size=128,
         gamma=0.95,
         save_path=f"results/{project_name}/{timestamp}",
     )
@@ -65,4 +66,5 @@ def main() -> None:
 
 
 if __name__ == "__main__":
-    main()
+    with keep.running():
+        main()
